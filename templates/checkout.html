@@ -1,0 +1,176 @@
+{% extends 'nav.html' %}
+{% block title %}
+    Checkout Page
+{% endblock title %}
+
+{% block style %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f8f9fa;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 75px auto;
+        padding: 20px;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    h2 {
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    th,
+    td {
+        padding: 12px;
+        border: 1px solid #dee2e6;
+        text-align: left;
+    }
+
+    th {
+        background-color: #007bff;
+        color: white;
+    }
+
+    tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .total-row {
+        font-weight: bold;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .btn {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 0 10px;
+    }
+
+    .btn-proceed {
+        background-color: #28a745;
+    }
+
+    .btn-edit {
+        background-color: #007bff;
+    }
+
+    .btn-home {
+        background-color: #007bff;
+    }
+
+    .btn-proceed:hover {
+        background-color: #218838;
+    }
+
+    .btn-edit:hover, .btn-home:hover {
+        background-color: #0056b3;
+    }
+</style>
+{% endblock style %}
+
+{% block body %}
+<div class="container" id="checkout-container">
+    <h2>Checkout</h2>
+    <div id="cart-empty-message" style="display: none;">
+        <p>Your cart is empty.</p>
+        <button class="btn btn-home" onclick="window.location.href='/'">Go to Home</button>
+    </div>
+
+    <table id="checkout-table" style="display: none;">
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Price (Rs.)</th>
+                <th>Total Price (Rs.)</th>
+            </tr>
+        </thead>
+        <tbody id="checkout-items">
+        </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="3" style="text-align: right;">Total:</td>
+                <td id="total-price">0</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="button-container" id="checkout-buttons" style="display: none;">
+        <form id="checkout-form" method="POST" action="{% url 'address' %}">
+            {% csrf_token %}
+            <input type="hidden" name="cart_total" id="cart_total_input">
+            <button class="btn btn-proceed" type="submit">Proceed to Pay</button>
+        </form>
+        
+        <button class="btn btn-edit" id="edit-cart">Edit</button>
+    </div>
+</div>
+
+<script>
+    let cart = JSON.parse(localStorage.getItem("cart")) || {};
+
+    function populateCheckout() {
+        const checkoutItemsContainer = document.getElementById("checkout-items");
+        const checkoutTable = document.getElementById("checkout-table");
+        const checkoutButtons = document.getElementById("checkout-buttons");
+        const cartEmptyMessage = document.getElementById("cart-empty-message");
+        
+        if (Object.keys(cart).length === 0) {
+            cartEmptyMessage.style.display = "block";
+            checkoutTable.style.display = "none";
+            checkoutButtons.style.display = "none";
+        } else {
+            cartEmptyMessage.style.display = "none";
+            checkoutTable.style.display = "table";
+            checkoutButtons.style.display = "flex";
+
+            let totalPrice = 0;
+            for (const productId in cart) {
+                const item = cart[productId];
+                const itemTotalPrice = item.price * item.quantity;
+                totalPrice += itemTotalPrice;
+
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.price}</td>
+                    <td>${itemTotalPrice}</td>
+                `;
+                checkoutItemsContainer.appendChild(row);
+            }
+
+            document.getElementById("total-price").innerText = totalPrice;
+            document.getElementById("cart_total_input").value = totalPrice; // Set the total in hidden input
+        }
+    }
+
+    document.getElementById("edit-cart").addEventListener("click", function () {
+        window.location.href = "/cart"; 
+    });
+
+    populateCheckout();
+</script>
+{% endblock body %}

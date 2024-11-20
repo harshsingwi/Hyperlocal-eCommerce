@@ -1,0 +1,90 @@
+{% extends 'nav.html' %}
+{% block title %}
+    Your Cart
+{% endblock title %}
+
+{% block body %}
+<div class="container">
+    <h2>Your Cart</h2>
+    <div id="cart-items"></div>
+    <h3>Total Price: Rs. <span id="total-price">0</span></h3>
+    
+    <!-- Checkout and Clear Cart Buttons -->
+    <button id="checkout-button">Proceed to Checkout</button>
+    <button id="clear-cart-button">Clear Cart</button>
+</div>
+
+<script>
+    // Initialize cart data from localStorage
+    let cart = JSON.parse(localStorage.getItem("cart")) || {};
+
+    const cartItemsContainer = document.getElementById("cart-items");
+    let totalPrice = 0;
+
+    // Function to render cart items
+    function renderCartItems() {
+        cartItemsContainer.innerHTML = ""; // Clear previous content
+        totalPrice = 0;
+
+        // Loop through cart items and add them to the cart display
+        for (const [productId, item] of Object.entries(cart)) {
+            const itemTotal = item.price * item.quantity;
+            totalPrice += itemTotal;
+
+            cartItemsContainer.innerHTML += `
+                <div class="cart-item" id="item-${productId}">
+                    <h4>${item.name}</h4>
+                    <p>Price: Rs. ${item.price}</p>
+                    <div class="quantity-controls">
+                        <button onclick="updateQuantity('${productId}', -1)">-</button>
+                        <span>${item.quantity}</span>
+                        <button onclick="updateQuantity('${productId}', 1)">+</button>
+                    </div>
+                    <p>Total: Rs. ${itemTotal}</p>
+                    <hr>
+                </div>
+            `;
+        }
+
+        // Update total price
+        document.getElementById("total-price").innerText = totalPrice;
+    }
+
+    // Function to update item quantity
+    function updateQuantity(productId, change) {
+        if (cart[productId]) {
+            cart[productId].quantity += change;
+            // Remove item if quantity is zero or less
+            if (cart[productId].quantity <= 0) {
+                delete cart[productId];
+            }
+            saveCart();
+        }
+    }
+
+    // Save cart data to localStorage
+    function saveCart() {
+        localStorage.setItem("cart", JSON.stringify(cart));
+        renderCartItems(); // Re-render items after update
+    }
+
+    // Checkout button functionality
+    document.getElementById("checkout-button").addEventListener("click", function () {
+        // Check if cart is empty
+        if (Object.keys(cart).length === 0) {
+            alert("Your cart is empty. Please add items before proceeding to checkout.");
+        } else {
+            window.location.href = "/checkout";
+        }
+    });
+
+    // Clear cart button functionality
+    document.getElementById("clear-cart-button").addEventListener("click", function () {
+        cart = {}; // Clear cart object
+        saveCart();
+    });
+
+    // Initialize cart display
+    renderCartItems();
+</script>
+{% endblock body %}

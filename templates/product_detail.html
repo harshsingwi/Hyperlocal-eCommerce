@@ -1,0 +1,15 @@
+{% extends "nav.html" %}
+
+{% block title %}{{ product.product_name }}{% endblock title %}
+
+{% block body %}
+<div class="product-detail">
+    <h1>{{ product.product_name }}</h1>
+    <img src="{{ product.image.url }}" alt="{{ product.product_name }}" width="300">
+    <p>Category: {{ product.category }}</p>
+    <p>Sub-category: {{ product.sub_category }}</p>
+    <p>Price: {{ product.price }}</p>
+    <p>Description: {{ product.desc }}</p>
+    <p>Published on: {{ product.pub_date }}</p>
+</div>
+{% endblock body %}
