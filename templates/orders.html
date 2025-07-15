@@ -1,8 +1,115 @@
 {% extends "nav.html" %}
 
 {% block body %}
-  <h2>Your Orders</h2>
-  <table>
+<style>
+  .orders-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+
+  .page-title {
+    color: #2d3748;
+    font-size: 1.875rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  .orders-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  .orders-table thead {
+    background-color: #f7fafc;
+  }
+
+  .orders-table th {
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: #4a5568;
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .orders-table td {
+    padding: 1rem;
+    color: #4a5568;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .orders-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .orders-table tbody tr:hover {
+    background-color: #f7fafc;
+  }
+
+  .status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .status-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+  }
+
+  .status-shipped {
+    background-color: #dcfce7;
+    color: #166534;
+  }
+
+  .status-delivered {
+    background-color: #dbeafe;
+    color: #1e40af;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #6b7280;
+    font-style: italic;
+  }
+
+  .amount {
+    font-weight: 600;
+    color: #2d3748;
+  }
+
+  .order-id {
+    font-family: monospace;
+    color: #6b7280;
+  }
+
+  .address {
+    max-width: 300px;
+    line-height: 1.5;
+  }
+
+  .date {
+    color: #6b7280;
+    font-size: 0.875rem;
+  }
+</style>
+
+<div class="orders-container">
+  <h2 class="page-title">Order History</h2>
+  <table class="orders-table">
     <thead>
       <tr>
         <th>Order ID</th>
@@ -15,17 +122,20 @@
     <tbody>
       {% for order in orders %}
         <tr>
-          <td>{{ order.id }}</td>
-          <td>${{ order.amount }}</td>
-          <td>{{ order.address1 }}{{ order.address2 }}</td>
-          <td>{{ order.status }}</td> <!-- You can also add order status like pending, shipped, etc. -->
-          <td>{{ order.created_at }}</td>
+          <td class="order-id">{{ order.id }}</td>
+          <td class="amount">Rs{{ order.amount }}</td>
+          <td class="address">{{ order.address1 }}{{ order.address2 }}</td>
+          <td>
+            <span class="status status-{{ order.status|lower }}">{{ order.status }}</span>
+          </td>
+          <td class="date">{{ order.created_at }}</td>
         </tr>
       {% empty %}
         <tr>
-          <td colspan="5">No orders placed yet.</td>
+          <td colspan="5" class="empty-state">No orders placed yet.</td>
         </tr>
       {% endfor %}
     </tbody>
   </table>
+</div>
 {% endblock body %}

@@ -1,4 +1,5 @@
 {% extends 'nav.html' %}
+
 {% block title %}
     Your Cart
 {% endblock title %}
@@ -6,16 +7,20 @@
 {% block body %}
 <div class="container">
     <h2>Your Cart</h2>
-    <div id="cart-items"></div>
-    <h3>Total Price: Rs. <span id="total-price">0</span></h3>
     
-    <!-- Checkout and Clear Cart Buttons -->
-    <button id="checkout-button">Proceed to Checkout</button>
-    <button id="clear-cart-button">Clear Cart</button>
+    <!-- Cart Items Section -->
+    <div id="cart-items"></div>
+
+    <div class="cart-summary">
+        <h3>Total Price: Rs. <span id="total-price">0</span></h3>
+        <div class="cart-buttons">
+            <button id="checkout-button" class="btn btn-primary">Proceed to Checkout</button>
+            <button id="clear-cart-button" class="btn btn-secondary">Clear Cart</button>
+        </div>
+    </div>
 </div>
 
 <script>
-    // Initialize cart data from localStorage
     let cart = JSON.parse(localStorage.getItem("cart")) || {};
 
     const cartItemsContainer = document.getElementById("cart-items");
@@ -23,18 +28,19 @@
 
     // Function to render cart items
     function renderCartItems() {
-        cartItemsContainer.innerHTML = ""; // Clear previous content
+        cartItemsContainer.innerHTML = "";
         totalPrice = 0;
 
-        // Loop through cart items and add them to the cart display
         for (const [productId, item] of Object.entries(cart)) {
             const itemTotal = item.price * item.quantity;
             totalPrice += itemTotal;
 
             cartItemsContainer.innerHTML += `
                 <div class="cart-item" id="item-${productId}">
-                    <h4>${item.name}</h4>
-                    <p>Price: Rs. ${item.price}</p>
+                    <div class="cart-item-details">
+                        <h4>${item.name}</h4>
+                        <p>Price: Rs. ${item.price}</p>
+                    </div>
                     <div class="quantity-controls">
                         <button onclick="updateQuantity('${productId}', -1)">-</button>
                         <span>${item.quantity}</span>
@@ -46,15 +52,13 @@
             `;
         }
 
-        // Update total price
         document.getElementById("total-price").innerText = totalPrice;
     }
 
-    // Function to update item quantity
+    // Update item quantity
     function updateQuantity(productId, change) {
         if (cart[productId]) {
             cart[productId].quantity += change;
-            // Remove item if quantity is zero or less
             if (cart[productId].quantity <= 0) {
                 delete cart[productId];
             }
@@ -62,15 +66,14 @@
         }
     }
 
-    // Save cart data to localStorage
+    // Save cart to localStorage
     function saveCart() {
         localStorage.setItem("cart", JSON.stringify(cart));
-        renderCartItems(); // Re-render items after update
+        renderCartItems();
     }
 
     // Checkout button functionality
     document.getElementById("checkout-button").addEventListener("click", function () {
-        // Check if cart is empty
         if (Object.keys(cart).length === 0) {
             alert("Your cart is empty. Please add items before proceeding to checkout.");
         } else {
@@ -80,11 +83,141 @@
 
     // Clear cart button functionality
     document.getElementById("clear-cart-button").addEventListener("click", function () {
-        cart = {}; // Clear cart object
+        cart = {};
         saveCart();
     });
 
     // Initialize cart display
     renderCartItems();
 </script>
+
+<style>
+    /* Container styles */
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    /* Title styling */
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-family: Arial, sans-serif;
+        color: #333;
+    }
+
+    /* Cart item styling */
+    .cart-item {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 20px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .cart-item-details h4 {
+        margin: 0;
+        font-size: 18px;
+        color: #333;
+    }
+
+    .cart-item-details p {
+        margin: 5px 0;
+        font-size: 16px;
+        color: #777;
+    }
+
+    .quantity-controls {
+        display: flex;
+        align-items: center;
+        margin: 10px 0;
+    }
+
+    .quantity-controls button {
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        padding: 5px 10px;
+        cursor: pointer;
+        font-size: 18px;
+        margin: 0 5px;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+    }
+
+    .quantity-controls button:hover {
+        background-color: #e0e0e0;
+    }
+
+    .cart-summary {
+        margin-top: 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .cart-summary h3 {
+        font-size: 20px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .cart-buttons {
+        margin-top: 20px;
+        display: flex;
+        gap: 20px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+
+    hr {
+        border: 0;
+        border-top: 1px solid #ddd;
+        margin: 10px 0;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .cart-item {
+            flex-direction: column;
+        }
+
+        .quantity-controls {
+            flex-direction: column;
+        }
+
+        .cart-buttons {
+            flex-direction: column;
+            gap: 10px;
+        }
+    }
+</style>
+
 {% endblock body %}
